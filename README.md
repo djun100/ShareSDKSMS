@@ -10,4 +10,4 @@ usage
         maven { url "https://jitpack.io" }
     }
 
-    compile 'com.github.djun100:ShareSDKSMS:83537a20d0148555044866d876f27c23f7dee13f'
+    compile 'com.github.djun100:ShareSDKSMS:599209d4f4ae97bcebccc0ccc62d84cbc4d926fd'
