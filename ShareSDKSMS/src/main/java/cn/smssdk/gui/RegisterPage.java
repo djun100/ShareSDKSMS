@@ -8,8 +8,6 @@
 package cn.smssdk.gui;
 
 import static com.mob.tools.utils.R.getBitmapRes;
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getLayoutRes;
 import static com.mob.tools.utils.R.getStringRes;
 import static com.mob.tools.utils.R.getStyleRes;
 
@@ -33,15 +31,19 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.smssdk.EventHandler;
 import cn.smssdk.OnSendMessageHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.UserInterruptException;
+import cn.smssdk.gui.layout.RegisterPageLayout;
+import cn.smssdk.gui.layout.Res;
+import cn.smssdk.gui.layout.SendMsgDialogLayout;
+import cn.smssdk.utils.SMSLog;
 
 import com.mob.tools.FakeActivity;
-import cn.smssdk.utils.SMSLog;
 
 /** 短信注册页面*/
 public class RegisterPage extends FakeActivity implements OnClickListener,
@@ -84,26 +86,24 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 	}
 
 	public void onCreate() {
-		int resId = getLayoutRes(activity, "smssdk_regist_page");
-		if (resId > 0) {
-			activity.setContentView(resId);
+
+		RegisterPageLayout page = new RegisterPageLayout(activity);
+		LinearLayout layout = page.getLayout();
+
+		if (layout != null) {
+			activity.setContentView(layout);
 			currentId = DEFAULT_COUNTRY_ID;
 
-			resId = getIdRes(activity, "ll_back");
-			View llBack = activity.findViewById(resId);
-			resId = getIdRes(activity, "tv_title");
-			TextView tv = (TextView) activity.findViewById(resId);
-			resId = getStringRes(activity, "smssdk_regist");
+			View llBack = activity.findViewById(Res.id.ll_back);
+			TextView tv = (TextView) activity.findViewById(Res.id.tv_title);
+			int resId = getStringRes(activity, "smssdk_regist");
 			if (resId > 0) {
 				tv.setText(resId);
 			}
-			resId = getIdRes(activity, "rl_country");
-			View viewCountry = activity.findViewById(resId);
-			resId = getIdRes(activity, "btn_next");
-			btnNext = (Button) activity.findViewById(resId);
 
-			resId = getIdRes(activity, "tv_country");
-			tvCountry = (TextView) activity.findViewById(resId);
+			View viewCountry = activity.findViewById(Res.id.rl_country);
+			btnNext = (Button) activity.findViewById(Res.id.btn_next);
+			tvCountry = (TextView) activity.findViewById(Res.id.tv_country);
 
 			String[] country = getCurrentCountry();
 			// String[] country = SMSSDK.getCountry(currentId);
@@ -111,19 +111,18 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 				currentCode = country[1];
 				tvCountry.setText(country[0]);
 			}
-			resId = getIdRes(activity, "tv_country_num");
-			tvCountryNum = (TextView) activity.findViewById(resId);
+
+			tvCountryNum = (TextView) activity.findViewById(Res.id.tv_country_num);
 			tvCountryNum.setText("+" + currentCode);
 
-			resId = getIdRes(activity, "et_write_phone");
-			etPhoneNum = (EditText) activity.findViewById(resId);
+			etPhoneNum = (EditText) activity.findViewById(Res.id.et_write_phone);
 			etPhoneNum.setText("");
 			etPhoneNum.addTextChangedListener(this);
 			etPhoneNum.requestFocus();
 			if (etPhoneNum.getText().length() > 0) {
 				btnNext.setEnabled(true);
-				resId = getIdRes(activity, "iv_clear");
-				ivClear = (ImageView) activity.findViewById(resId);
+
+				ivClear = (ImageView) activity.findViewById(Res.id.iv_clear);
 				ivClear.setVisibility(View.VISIBLE);
 				resId = getBitmapRes(activity, "smssdk_btn_enable");
 				if (resId > 0) {
@@ -131,8 +130,7 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 				}
 			}
 
-			resId = getIdRes(activity, "iv_clear");
-			ivClear = (ImageView) activity.findViewById(resId);
+			ivClear = (ImageView) activity.findViewById(Res.id.iv_clear);
 
 			llBack.setOnClickListener(this);
 			btnNext.setOnClickListener(this);
@@ -154,7 +152,8 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 									onCountryListGot((ArrayList<HashMap<String, Object>>) data);
 								} else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
 									// 请求验证码后，跳转到验证码填写页面
-									afterVerificationCodeRequested();
+									boolean smart = (Boolean)data;
+									afterVerificationCodeRequested(smart);
 								}
 							} else {
 								if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE
@@ -257,10 +256,10 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 
 	public void onClick(View v) {
 		int id = v.getId();
-		int id_ll_back = getIdRes(activity, "ll_back");
-		int id_rl_country = getIdRes(activity, "rl_country");
-		int id_btn_next = getIdRes(activity, "btn_next");
-		int id_iv_clear = getIdRes(activity, "iv_clear");
+		int id_ll_back = Res.id.ll_back;
+		int id_rl_country = Res.id.rl_country;
+		int id_btn_next = Res.id.btn_next;
+		int id_iv_clear = Res.id.iv_clear;
 
 		if (id == id_ll_back) {
 			finish();
@@ -310,6 +309,8 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 			} else if (page == 2) {
 				// 验证码校验返回
 				Object res = data.get("res");
+				//Object smart = data.get("smart");
+
 				HashMap<String, Object> phoneMap = (HashMap<String, Object>) data.get("phone");
 				if (res != null && phoneMap != null) {
 					int resId = getStringRes(activity, "smssdk_your_ccount_is_verified");
@@ -373,6 +374,25 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 			return;
 		}
 
+		if (countryRules == null || countryRules.size() <= 0) {
+			if (code == "86") {
+				if(phone.length() != 11) {
+					int resId = getStringRes(activity, "smssdk_write_right_mobile_phone");
+					if (resId > 0) {
+						Toast.makeText(getContext(), resId, Toast.LENGTH_SHORT).show();
+					}
+					return;
+				}
+				showDialog(phone, code);
+			} else {
+				int resId = getStringRes(activity, "smssdk_country_not_support_currently");
+				if (resId > 0) {
+					Toast.makeText(getContext(), resId, Toast.LENGTH_SHORT).show();
+				}
+			}
+			return;
+		}
+
 		String rule = countryRules.get(code);
 		Pattern p = Pattern.compile(rule);
 		Matcher m = p.matcher(phone);
@@ -393,22 +413,23 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 		if (resId > 0) {
 			final String phoneNum = "+" + code + " " + splitPhoneNum(phone);
 			final Dialog dialog = new Dialog(getContext(), resId);
-			resId = getLayoutRes(activity, "smssdk_send_msg_dialog");
-			if (resId > 0) {
-				dialog.setContentView(resId);
-				resId = getIdRes(activity, "tv_phone");
-				((TextView) dialog.findViewById(resId)).setText(phoneNum);
-				resId = getIdRes(activity, "tv_dialog_hint");
-				TextView tv = (TextView) dialog.findViewById(resId);
+
+			LinearLayout layout = SendMsgDialogLayout.create(getContext());
+
+			if (layout != null) {
+				dialog.setContentView(layout);
+
+				((TextView) dialog.findViewById(Res.id.tv_phone)).setText(phoneNum);
+				TextView tv = (TextView) dialog.findViewById(Res.id.tv_dialog_hint);
 				resId = getStringRes(activity, "smssdk_make_sure_mobile_detail");
 				if (resId > 0) {
 					String text = getContext().getString(resId);
+
 					tv.setText(Html.fromHtml(text));
 				}
-				resId = getIdRes(activity, "btn_dialog_ok");
-				if (resId > 0) {
-					((Button) dialog.findViewById(resId))
-							.setOnClickListener(new OnClickListener() {
+
+				((Button) dialog.findViewById(Res.id.btn_dialog_ok)).setOnClickListener(
+						new OnClickListener() {
 								public void onClick(View v) {
 									// 跳转到验证码页面
 									dialog.dismiss();
@@ -421,19 +442,17 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 										pd.show();
 									}
 									Log.e("verification phone ==>>", phone);
-									SMSSDK.getVerificationCode(code,
-											phone.trim(), osmHandler);
+									SMSSDK.getVerificationCode(code, phone.trim(), osmHandler);
 								}
 							});
-				}
-				resId = getIdRes(activity, "btn_dialog_cancel");
-				if (resId > 0) {
-					((Button) dialog.findViewById(resId)).setOnClickListener(new OnClickListener() {
+
+
+					((Button) dialog.findViewById(Res.id.btn_dialog_cancel)).setOnClickListener(
+							new OnClickListener() {
 								public void onClick(View v) {
 									dialog.dismiss();
 								}
 							});
-				}
 				dialog.setCanceledOnTouchOutside(true);
 				dialog.show();
 			}
@@ -441,17 +460,24 @@ public class RegisterPage extends FakeActivity implements OnClickListener,
 	}
 
 	/** 请求验证码后，跳转到验证码填写页面 */
-	private void afterVerificationCodeRequested() {
+	private void afterVerificationCodeRequested(boolean smart) {
 		String phone = etPhoneNum.getText().toString().trim().replaceAll("\\s*", "");
 		String code = tvCountryNum.getText().toString().trim();
 		if (code.startsWith("+")) {
 			code = code.substring(1);
 		}
 		String formatedPhone = "+" + code + " " + splitPhoneNum(phone);
+
 		// 验证码页面
-		IdentifyNumPage page = new IdentifyNumPage();
-		page.setPhone(phone, code, formatedPhone);
-		page.showForResult(activity, null, this);
+		if(smart) {
+			SmartVerifyPage smartPage = new SmartVerifyPage();
+			smartPage.setPhone(phone, code, formatedPhone);
+			smartPage.showForResult(activity, null, this);
+		} else {
+			IdentifyNumPage page = new IdentifyNumPage();
+			page.setPhone(phone, code, formatedPhone);
+			page.showForResult(activity, null, this);
+		}
 	}
 
 }

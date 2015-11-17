@@ -1,5 +1,5 @@
 # ShareSDKSMS
-base on ShareSMSSDK v1.2.2
+base on ShareSMSSDK v1.3.1
 已经配置好permission，加好jar包
 usage
 

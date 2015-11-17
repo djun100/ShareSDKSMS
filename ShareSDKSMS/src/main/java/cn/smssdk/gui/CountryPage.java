@@ -7,8 +7,6 @@
  */
 package cn.smssdk.gui;
 
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getLayoutRes;
 import static com.mob.tools.utils.R.getStringRes;
 
 import java.util.ArrayList;
@@ -22,14 +20,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
-
-import com.mob.tools.FakeActivity;
+import cn.smssdk.gui.GroupListView.OnItemClickListener;
+import cn.smssdk.gui.layout.CountryListPageLayout;
+import cn.smssdk.gui.layout.Res;
 import cn.smssdk.utils.SMSLog;
 
-import cn.smssdk.gui.GroupListView.OnItemClickListener;
+import com.mob.tools.FakeActivity;
 
 /** 国家列表界面*/
 public class CountryPage extends FakeActivity implements OnClickListener, TextWatcher, OnItemClickListener {
@@ -68,9 +68,11 @@ public class CountryPage extends FakeActivity implements OnClickListener, TextWa
 	private void afterPrepare() {
 		runOnUIThread(new Runnable() {
 			public void run() {
-				int resId = getLayoutRes(activity, "smssdk_country_list_page");
-				if (resId > 0) {
-					activity.setContentView(resId);
+				CountryListPageLayout page = new CountryListPageLayout(activity);
+				LinearLayout layout = page.getLayout();
+
+				if (layout != null) {
+					activity.setContentView(layout);
 				}
 
 				if (countryRules == null || countryRules.size() <= 0) {
@@ -125,28 +127,18 @@ public class CountryPage extends FakeActivity implements OnClickListener, TextWa
 	}
 
 	private void initPage() {
-		int resId = getIdRes(activity, "ll_back");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "ivSearch");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "iv_clear");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "clCountry");
-		if (resId > 0) {
-			listView = (CountryListView) activity.findViewById(resId);
-			listView.setOnItemClickListener(this);
-		}
-		resId = getIdRes(activity, "et_put_identify");
-		if (resId > 0) {
-			etSearch = (EditText) activity.findViewById(resId);
-			etSearch.addTextChangedListener(this);
-		}
+
+		activity.findViewById(Res.id.ll_back).setOnClickListener(this);
+		activity.findViewById(Res.id.ivSearch).setOnClickListener(this);
+		activity.findViewById(Res.id.iv_clear).setOnClickListener(this);
+
+		int resId = Res.id.clCountry;
+		listView = (CountryListView) activity.findViewById(resId);
+		listView.setOnItemClickListener(this);
+
+		resId = Res.id.et_put_identify;
+		etSearch = (EditText) activity.findViewById(resId);
+		etSearch.addTextChangedListener(this);
 	}
 
 	private void onCountryListGot(ArrayList<HashMap<String, Object>> countries) {
@@ -184,16 +176,16 @@ public class CountryPage extends FakeActivity implements OnClickListener, TextWa
 
 	public void onClick(View v) {
 		int id = v.getId();
-		int id_ll_back = getIdRes(activity, "ll_back");
-		int id_ivSearch = getIdRes(activity, "ivSearch");
-		int id_iv_clear = getIdRes(activity, "iv_clear");
+		int id_ll_back = Res.id.ll_back;
+		int id_ivSearch = Res.id.ivSearch;
+		int id_iv_clear = Res.id.iv_clear;
 		if (id == id_ll_back) {
 			finish();
 		} else if (id == id_ivSearch) {
 			// 搜索
-			int id_llTitle = getIdRes(activity, "llTitle");
+			int id_llTitle = Res.id.llTitle;
 			activity.findViewById(id_llTitle).setVisibility(View.GONE);
-			int id_llSearch = getIdRes(activity, "llSearch");
+			int id_llSearch = Res.id.llSearch;
 			activity.findViewById(id_llSearch).setVisibility(View.VISIBLE);
 			etSearch.getText().clear();
 			etSearch.requestFocus();
@@ -204,12 +196,12 @@ public class CountryPage extends FakeActivity implements OnClickListener, TextWa
 
 	public boolean onKeyEvent(int keyCode, KeyEvent event) {
 		try {
-			int resId = getIdRes(activity, "llSearch");
+			int resId = Res.id.llSearch;
 			if (keyCode == KeyEvent.KEYCODE_BACK
 					&& event.getAction() == KeyEvent.ACTION_DOWN
 					&& activity.findViewById(resId).getVisibility() == View.VISIBLE) {
 				activity.findViewById(resId).setVisibility(View.GONE);
-				resId = getIdRes(activity, "llTitle");
+				resId = Res.id.llTitle;
 				activity.findViewById(resId).setVisibility(View.VISIBLE);
 				etSearch.setText("");
 				return true;

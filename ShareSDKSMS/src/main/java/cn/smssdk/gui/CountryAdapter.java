@@ -7,14 +7,11 @@
  */
 package cn.smssdk.gui;
 
-import static com.mob.tools.utils.R.dipToPx;
 import static com.mob.tools.utils.R.getColorRes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import cn.smssdk.utils.SMSLog;
 
 import android.util.TypedValue;
 import android.view.View;
@@ -24,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.GroupListView.GroupAdapter;
+import cn.smssdk.gui.layout.SizeHelper;
+import cn.smssdk.utils.SMSLog;
 
 /** 自定义的国家列表，适配器，用于填充国家listview*/
 public class CountryAdapter extends GroupAdapter {
@@ -150,13 +149,15 @@ public class CountryAdapter extends GroupAdapter {
 			ll.setBackgroundColor(0xffffffff);
 			convertView = ll;
 
+			SizeHelper.prepare(parent.getContext());
+
 			TextView tv = new TextView(parent.getContext());
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, SizeHelper.fromPxWidth(16));
 			int resId = getColorRes(parent.getContext(), "smssdk_lv_title_color");
 			if (resId > 0) {
 				tv.setTextColor(parent.getContext().getResources().getColor(resId));
 			}
-			int dp_6 = dipToPx(parent.getContext(), 6);
+			int dp_6 = SizeHelper.fromPxWidth(14);
 			tv.setPadding(0, dp_6, 0, dp_6);
 			tv.setLayoutParams(new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -186,13 +187,15 @@ public class CountryAdapter extends GroupAdapter {
 			ll.setBackgroundColor(0xffffffff);
 			convertView = ll;
 
+			SizeHelper.prepare(parent.getContext());
+
 			TextView tv = new TextView(parent.getContext());
 			int resId = getColorRes(parent.getContext(), "smssdk_lv_tv_color");
 			if (resId > 0) {
 				tv.setTextColor(parent.getContext().getResources().getColor(resId));
 			}
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-			int dp_16 = dipToPx(parent.getContext(), 16);
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, SizeHelper.fromPxWidth(24));
+			int dp_16 = SizeHelper.fromPxWidth(30);
 			tv.setPadding(0, dp_16, 0, dp_16);
 			ll.addView(tv, new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));

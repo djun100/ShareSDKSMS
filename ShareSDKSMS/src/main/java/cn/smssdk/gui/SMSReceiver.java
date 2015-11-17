@@ -16,10 +16,9 @@ import android.util.Log;
 import cn.smssdk.SMSSDK;
 /** 短信监听接收器，用于自动获取短信验证码，然后自动填写到验证码区域*/
 public class SMSReceiver extends BroadcastReceiver {
-
 	private static final String ACTION_SMS_RECEIVER = "android.provider.Telephony.SMS_RECEIVED";
-
 	private SMSSDK.VerifyCodeReadListener listener;
+
 	public SMSReceiver(SMSSDK.VerifyCodeReadListener verifyCodeReadListener) {
 		this.listener = verifyCodeReadListener;
 	}
@@ -35,7 +34,6 @@ public class SMSReceiver extends BroadcastReceiver {
 		Log.w("cn.smssdk.gui.SMSReceiver", msg);
 	}
 
-	@Override
 	public void onReceive(Context context, Intent intent) {
 		if(ACTION_SMS_RECEIVER.equals(intent.getAction())) {
 			Bundle bundle = intent.getExtras();

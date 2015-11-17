@@ -7,7 +7,6 @@
  */
 package cn.smssdk.gui;
 
-import static com.mob.tools.utils.R.dipToPx;
 import static com.mob.tools.utils.R.getStringRes;
 
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 import cn.smssdk.gui.ContactsListView.GroupAdapter;
+import cn.smssdk.gui.layout.SizeHelper;
 
 /**
  * 联系人列表adapter
@@ -89,8 +89,6 @@ public class ContactsAdapter extends GroupAdapter {
 
 		titles = new ArrayList<String>();
 		contacts = new ArrayList<ArrayList<HashMap<String, Object>>>();
-
-
 
 		if (friendsInApp.size() > 0) {
 			reSortFia(resMap, isEmptyToken, friendsInApp);
@@ -255,15 +253,17 @@ public class ContactsAdapter extends GroupAdapter {
 
 	public TextView getTitleView(int group, TextView convertView, ViewGroup parent) {
 		if (convertView == null) {
+			SizeHelper.prepare(parent.getContext());
+
 			convertView = new TextView(parent.getContext());
 			convertView.setBackgroundColor(0xffeae8ee);
-			convertView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+			convertView.setTextSize(TypedValue.COMPLEX_UNIT_PX, SizeHelper.fromPxWidth(25));
 			convertView.setTextColor(0xff999999);
-			int dp_11 = dipToPx(parent.getContext(), 11);
-			convertView.setPadding(dp_11, 0, 0, 0);
+			int padding = SizeHelper.fromPxWidth(18);
+			convertView.setPadding(padding, 0, 0, 0);
 			convertView.setWidth(LayoutParams.MATCH_PARENT);
-			int dp_26 = dipToPx(parent.getContext(), 26);
-			convertView.setHeight(dp_26);
+			int height = SizeHelper.fromPxWidth(40);
+			convertView.setHeight(height);
 			convertView.setGravity(Gravity.CENTER_VERTICAL);
 		}
 		String title = getGroupTitle(group);

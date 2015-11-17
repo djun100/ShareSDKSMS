@@ -7,13 +7,9 @@
  */
 package cn.smssdk.gui;
 
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getLayoutRes;
 import static com.mob.tools.utils.R.getStringRes;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +17,11 @@ import android.net.Uri;
 import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import cn.smssdk.gui.layout.ContactDetailPageLayout;
+import cn.smssdk.gui.layout.Res;
+
 import com.mob.tools.FakeActivity;
 
 /**联系人详细信息页面*/
@@ -32,22 +32,21 @@ public class ContactDetailPage extends FakeActivity implements OnClickListener{
 
 	@Override
 	public void onCreate() {
-		int resId = getLayoutRes(activity, "smssdk_contact_detail_page");
-		if (resId > 0) {
-			activity.setContentView(resId);
-			resId = getIdRes(activity, "ll_back");
-			activity.findViewById(resId).setOnClickListener(this);
-			resId = getIdRes(activity, "tv_title");
-			TextView tvTitle = (TextView) activity.findViewById(resId);
+		ContactDetailPageLayout page = new ContactDetailPageLayout(activity);
+		LinearLayout layout = page.getLayout();
+
+		if (layout != null) {
+			int resId = 0;
+			activity.setContentView(layout);
+			activity.findViewById(Res.id.ll_back).setOnClickListener(this);
+			TextView tvTitle = (TextView) activity.findViewById(Res.id.tv_title);
 			resId = getStringRes(activity, "smssdk_contacts_detail");
 			tvTitle.setText(resId);
 
-			resId = getIdRes(activity, "tv_contact_name");
-			TextView tvContactName = (TextView) activity.findViewById(resId);
+			TextView tvContactName = (TextView) activity.findViewById(Res.id.tv_contact_name);
 			tvContactName.setText(phoneName);
 
-			resId = getIdRes(activity, "tv_contact_phones");
-			TextView tvPhonesList = (TextView) activity.findViewById(resId);
+			TextView tvPhonesList = (TextView) activity.findViewById(Res.id.tv_contact_phones);
 			StringBuilder phones = new StringBuilder();
 			for(String phone : phoneList){
 				phones.append("\n");
@@ -58,14 +57,12 @@ public class ContactDetailPage extends FakeActivity implements OnClickListener{
 				tvPhonesList.setText(phones.toString());
 			}
 
-			resId = getIdRes(activity, "tv_invite_hint");
-			TextView tvInviteHint = (TextView) activity.findViewById(resId);
+			TextView tvInviteHint = (TextView) activity.findViewById(Res.id.tv_invite_hint);
 			resId = getStringRes(activity, "smssdk_not_invite");
 			String hint = getContext().getResources().getString(resId, phoneName);
 			tvInviteHint.setText(Html.fromHtml(hint));
 
-			resId = getIdRes(activity, "btn_invite");
-			activity.findViewById(resId).setOnClickListener(this);
+			activity.findViewById(Res.id.btn_invite).setOnClickListener(this);
 		}
 	}
 
@@ -106,8 +103,8 @@ public class ContactDetailPage extends FakeActivity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
-		int id_ll_back = getIdRes(activity, "ll_back");
-		int id_btn_invite = getIdRes(activity, "btn_invite");
+		int id_ll_back = Res.id.ll_back;
+		int id_btn_invite = Res.id.btn_invite;
 		if (id == id_ll_back) {
 			finish();
 		} else if (id == id_btn_invite) {

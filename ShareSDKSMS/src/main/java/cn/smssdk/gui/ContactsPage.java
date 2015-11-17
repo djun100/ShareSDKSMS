@@ -7,11 +7,11 @@
  */
 package cn.smssdk.gui;
 
+import static com.mob.tools.utils.R.getStringRes;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-
-
 
 import android.app.Dialog;
 import android.content.Context;
@@ -21,17 +21,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
-
-import com.mob.tools.FakeActivity;
+import cn.smssdk.gui.layout.ContactListPageLayout;
+import cn.smssdk.gui.layout.Res;
 import cn.smssdk.utils.SMSLog;
 
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getStringRes;
-import static com.mob.tools.utils.R.getLayoutRes;
+import com.mob.tools.FakeActivity;
 
 /** 联系人列表页面*/
 public class ContactsPage extends FakeActivity implements OnClickListener, TextWatcher{
@@ -70,9 +69,11 @@ public class ContactsPage extends FakeActivity implements OnClickListener, TextW
 				friendsInApp = new ArrayList<HashMap<String,Object>>();
 				contactsInMobile = new ArrayList<HashMap<String,Object>>();
 
-				int resId = getLayoutRes(activity, "smssdk_contact_list_page");
-				if (resId > 0) {
-					activity.setContentView(resId);
+				ContactListPageLayout page = new ContactListPageLayout(activity);
+				LinearLayout layout = page.getLayout();
+
+				if (layout != null) {
+					activity.setContentView(layout);
 					initView();
 					initData();
 				}
@@ -100,35 +101,21 @@ public class ContactsPage extends FakeActivity implements OnClickListener, TextW
 	}
 
 	private void initView(){
-		int resId = getIdRes(activity, "clContact");
+
+		listView = (ContactsListView) activity.findViewById(Res.id.clContact);
+
+		activity.findViewById(Res.id.ll_back).setOnClickListener(this);
+		activity.findViewById(Res.id.ivSearch).setOnClickListener(this);
+		activity.findViewById(Res.id.iv_clear).setOnClickListener(this);
+
+		TextView tv = (TextView) activity.findViewById(Res.id.tv_title);
+		int resId = getStringRes(activity, "smssdk_search_contact");
 		if (resId > 0) {
-			listView = (ContactsListView) activity.findViewById(resId);
-		}
-		resId = getIdRes(activity, "ll_back");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "ivSearch");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "iv_clear");
-		if (resId > 0) {
-			activity.findViewById(resId).setOnClickListener(this);
-		}
-		resId = getIdRes(activity, "tv_title");
-		if (resId > 0) {
-			TextView tv = (TextView) activity.findViewById(resId);
-			resId = getStringRes(activity, "smssdk_search_contact");
-			if (resId > 0) {
 				tv.setText(resId);
-			}
 		}
-		resId = getIdRes(activity, "et_put_identify");
-		if (resId > 0) {
-			etSearch = (EditText) activity.findViewById(resId);
-			etSearch.addTextChangedListener(this);
-		}
+
+		etSearch = (EditText) activity.findViewById(Res.id.et_put_identify);
+		etSearch.addTextChangedListener(this);
 	}
 
 	private void initData(){
@@ -180,12 +167,12 @@ public class ContactsPage extends FakeActivity implements OnClickListener, TextW
 
 	public boolean onKeyEvent(int keyCode, KeyEvent event) {
 		try {
-			int resId = getIdRes(activity, "llSearch");
+			int resId = Res.id.llSearch;
 			if (keyCode == KeyEvent.KEYCODE_BACK
 					&& event.getAction() == KeyEvent.ACTION_DOWN
 					&& activity.findViewById(resId).getVisibility() == View.VISIBLE) {
 				activity.findViewById(resId).setVisibility(View.GONE);
-				resId = getIdRes(activity, "llTitle");
+				resId = Res.id.llTitle;
 				activity.findViewById(resId).setVisibility(View.VISIBLE);
 				etSearch.setText("");
 				return true;
@@ -201,10 +188,11 @@ public class ContactsPage extends FakeActivity implements OnClickListener, TextW
 		SMSSDK.unregisterEventHandler(handler);
 	}
 
-	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		adapter.search(s.toString());
-		adapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.search(s.toString());
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	@Override
@@ -220,16 +208,16 @@ public class ContactsPage extends FakeActivity implements OnClickListener, TextW
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
-		int id_ll_back = getIdRes(activity, "ll_back");
-		int id_ivSearch = getIdRes(activity, "ivSearch");
-		int id_iv_clear = getIdRes(activity, "iv_clear");
+		int id_ll_back = Res.id.ll_back;
+		int id_ivSearch = Res.id.ivSearch;
+		int id_iv_clear = Res.id.iv_clear;
 
 		if (id == id_ll_back) {
 			finish();
 		} else if (id == id_ivSearch) {
-			int id_llTitle = getIdRes(activity, "llTitle");
+			int id_llTitle = Res.id.llTitle;
 			activity.findViewById(id_llTitle).setVisibility(View.GONE);
-			int id_llSearch = getIdRes(activity, "llSearch");
+			int id_llSearch = Res.id.llSearch;
 			activity.findViewById(id_llSearch).setVisibility(View.VISIBLE);
 			etSearch.requestFocus();
 			etSearch.getText().clear();

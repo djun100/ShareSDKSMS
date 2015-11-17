@@ -7,7 +7,6 @@
  */
 package cn.smssdk.gui;
 
-import static com.mob.tools.utils.R.dipToPx;
 import static com.mob.tools.utils.R.getBitmapRes;
 import static com.mob.tools.utils.R.getColorRes;
 import android.content.Context;
@@ -23,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import cn.smssdk.gui.GroupListView.OnItemClickListener;
+import cn.smssdk.gui.layout.SizeHelper;
 
 /** 自定义国家列表控件listview */
 public class CountryListView extends RelativeLayout implements OnTouchListener {
@@ -47,8 +47,10 @@ public class CountryListView extends RelativeLayout implements OnTouchListener {
 	}
 
 	private void init(Context context) {
+		SizeHelper.prepare(context);
+
 		lvContries = new GroupListView(context);
-		lvContries.setDividerHeight(1);
+		lvContries.setDividerHeight(SizeHelper.fromPxWidth(1));
 		int resId = getBitmapRes(context, "smssdk_cl_divider");
 		if (resId > 0) {
 			lvContries.setDivider(context.getResources().getDrawable(resId));
@@ -57,7 +59,7 @@ public class CountryListView extends RelativeLayout implements OnTouchListener {
 		lvContries.setAdapter(adapter);
 		LayoutParams lpContries = new LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		int dp_9 = dipToPx(context, 9);
+		int dp_9 = SizeHelper.fromPxWidth(12);
 		lpContries.setMargins(dp_9, 0, dp_9, 0);
 		addView(lvContries, lpContries);
 
@@ -70,11 +72,11 @@ public class CountryListView extends RelativeLayout implements OnTouchListener {
 		if (resId > 0) {
 			tvScroll.setBackgroundResource(resId);
 		}
-		tvScroll.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
+		tvScroll.setTextSize(TypedValue.COMPLEX_UNIT_PX, SizeHelper.fromPxWidth(80));
 		tvScroll.setTypeface(Typeface.DEFAULT);
 		tvScroll.setVisibility(GONE);
 		tvScroll.setGravity(Gravity.CENTER);
-		int dp_80 = dipToPx(context, 80);
+		int dp_80 = SizeHelper.fromPxWidth(120);
 		LayoutParams lp = new LayoutParams(dp_80, dp_80);
 		lp.addRule(CENTER_IN_PARENT);
 		addView(tvScroll, lp);
@@ -90,7 +92,7 @@ public class CountryListView extends RelativeLayout implements OnTouchListener {
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		lp.addRule(ALIGN_PARENT_RIGHT);
 		lp.addRule(CENTER_VERTICAL);
-		lp.rightMargin = dipToPx(context, 5);
+		lp.rightMargin = SizeHelper.fromPxWidth(7);
 		addView(llScroll, lp);
 
 		initScroll(context);
@@ -98,12 +100,15 @@ public class CountryListView extends RelativeLayout implements OnTouchListener {
 
 	private void initScroll(Context context) {
 		llScroll.removeAllViews();
+		SizeHelper.prepare(context);
+
 		int size = adapter.getGroupCount();
-		int dp_3 = dipToPx(getContext(), 3);
-		int dp_2 = dipToPx(getContext(), 2);
+		int dp_3 = SizeHelper.fromPxWidth(6);
+		int dp_2 = SizeHelper.fromPxWidth(4);
 		for (int i = 0; i < size; i++) {
 			TextView tv = new TextView(context);
 			tv.setText(adapter.getGroupTitle(i));
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, SizeHelper.fromPxWidth(18));
 			tv.setGravity(Gravity.CENTER);
 			tv.setPadding(dp_3, dp_2, dp_3, dp_2);
 			llScroll.addView(tv);

@@ -49,6 +49,7 @@ public class ContactsListView extends RelativeLayout {
 	}
 
 	private void init(Context context) {
+
 		lvBody = new ListView(context);
 		lvBody.setCacheColorHint(0);
 		lvBody.setSelector(new ColorDrawable());

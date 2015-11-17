@@ -7,26 +7,26 @@
  */
 package cn.smssdk.gui;
 
+import static com.mob.tools.utils.R.getBitmapRes;
+import static com.mob.tools.utils.R.getStringRes;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.mob.tools.gui.AsyncImageView;
-import com.mob.tools.gui.BitmapProcessor;
 
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getStringRes;
-import static com.mob.tools.utils.R.getLayoutRes;
-import static com.mob.tools.utils.R.getBitmapRes;
+import cn.smssdk.gui.layout.ContactsListviewItemLayout;
+import cn.smssdk.gui.layout.Res;
+
+import com.mob.tools.gui.AsyncImageView;
+import com.mob.tools.gui.BitmapProcessor;
 
 public class DefaultContactViewItem implements cn.smssdk.gui.ContactItemMaker {
 
@@ -36,18 +36,18 @@ public class DefaultContactViewItem implements cn.smssdk.gui.ContactItemMaker {
 		ViewHolder viewHolder;
 		if (convertView == null) {
 			viewHolder = new ViewHolder();
-			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-			int resId = getLayoutRes(parent.getContext(), "smssdk_contacts_listview_item");
-			convertView = inflater.inflate(resId, null);
-			resId = getIdRes(parent.getContext(), "iv_contact");
+
+			convertView = ContactsListviewItemLayout.create(parent.getContext());
+
+			int resId = Res.id.iv_contact;
 			viewHolder.ivContact = (AsyncImageView) convertView.findViewById(resId);
-			resId = getIdRes(parent.getContext(), "tv_name");
+			resId = Res.id.tv_name;
 			viewHolder.tvName = (TextView) convertView.findViewById(resId);
-			resId = getIdRes(parent.getContext(), "tv_contact");
+			resId = Res.id.tv_contact;
 			viewHolder.tvContact = (TextView) convertView.findViewById(resId);
-			resId = getIdRes(parent.getContext(), "btn_add");
+			resId = Res.id.btn_add;
 			viewHolder.btnAdd = (Button) convertView.findViewById(resId);
-			resId = getIdRes(parent.getContext(), "rl_lv_item_bg");
+			resId = Res.id.rl_lv_item_bg;
 			viewHolder.bg = convertView.findViewById(resId);
 			convertView.setTag(viewHolder);
 		}else{

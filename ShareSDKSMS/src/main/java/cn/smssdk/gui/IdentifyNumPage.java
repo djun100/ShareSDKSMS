@@ -10,8 +10,6 @@ package cn.smssdk.gui;
 import static com.mob.tools.utils.R.dipToPx;
 import static com.mob.tools.utils.R.getBitmapRes;
 import static com.mob.tools.utils.R.getColorRes;
-import static com.mob.tools.utils.R.getIdRes;
-import static com.mob.tools.utils.R.getLayoutRes;
 import static com.mob.tools.utils.R.getStringRes;
 import static com.mob.tools.utils.R.getStyleRes;
 
@@ -36,19 +34,25 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.layout.BackVerifyDialogLayout;
+import cn.smssdk.gui.layout.IdentifyNumPageLayout;
+import cn.smssdk.gui.layout.Res;
+import cn.smssdk.gui.layout.SendMsgDialogLayout;
+import cn.smssdk.utils.SMSLog;
 
 import com.mob.tools.FakeActivity;
-import cn.smssdk.utils.SMSLog;
+import com.mob.tools.utils.DeviceHelper;
 
 /** 验证码输入页面*/
 public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 		TextWatcher {
-
 	private static final int RETRY_INTERVAL = 60;
+	private static final int MIN_REQUEST_VOICE_VERIFY_INTERVAL = 1000;
 	private String phone;
 	private String code;
 	private String formatedPhone;
@@ -66,6 +70,7 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 	private Button btnSounds;
 	private BroadcastReceiver smsReceiver;
 	private int SHOWDIALOGTYPE = 1;
+	private long lastRequestVVTime;
 
 	public void setPhone(String phone, String code, String formatedPhone) {
 		this.phone = phone;
@@ -74,37 +79,37 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 	}
 
 	public void onCreate() {
-		int resId = getLayoutRes(activity, "smssdk_input_identify_num_page");
-		if (resId > 0) {
-			activity.setContentView(resId);
-			resId = getIdRes(activity, "ll_back");
-			activity.findViewById(resId).setOnClickListener(this);
-			resId = getIdRes(activity, "btn_submit");
-			btnSubmit = (Button) activity.findViewById(resId);
+		IdentifyNumPageLayout page = new IdentifyNumPageLayout(activity);
+		LinearLayout layout = page.getLayout();
+
+		if (layout != null) {
+			activity.setContentView(layout);
+			activity.findViewById(Res.id.ll_back).setOnClickListener(this);
+
+			btnSubmit = (Button) activity.findViewById(Res.id.btn_submit);
 			btnSubmit.setOnClickListener(this);
 			btnSubmit.setEnabled(false);
 
-			resId = getIdRes(activity, "tv_title");
-			tvTitle = (TextView) activity.findViewById(resId);
-			resId = getStringRes(activity, "smssdk_write_identify_code");
+			tvTitle = (TextView) activity.findViewById(Res.id.tv_title);
+			int resId = getStringRes(activity, "smssdk_write_identify_code");
 			if (resId > 0) {
 				tvTitle.setText(resId);
 			}
-			resId = getIdRes(activity, "et_put_identify");
-			etIdentifyNum = (EditText) activity.findViewById(resId);
+
+			etIdentifyNum = (EditText) activity.findViewById(Res.id.et_put_identify);
 			etIdentifyNum.addTextChangedListener(this);
-			resId = getIdRes(activity, "tv_identify_notify");
-			tvIdentifyNotify = (TextView) activity.findViewById(resId);
+
+			tvIdentifyNotify = (TextView) activity.findViewById(Res.id.tv_identify_notify);
 			resId = getStringRes(activity, "smssdk_send_mobile_detail");
 			if (resId > 0) {
 				String text = getContext().getString(resId);
 				tvIdentifyNotify.setText(Html.fromHtml(text));
 			}
-			resId = getIdRes(activity, "tv_phone");
-			tvPhone = (TextView) activity.findViewById(resId);
+
+			tvPhone = (TextView) activity.findViewById(Res.id.tv_phone);
 			tvPhone.setText(formatedPhone);
-			resId = getIdRes(activity, "tv_unreceive_identify");
-			tvUnreceiveIdentify = (TextView) activity.findViewById(resId);
+
+			tvUnreceiveIdentify = (TextView) activity.findViewById(Res.id.tv_unreceive_identify);
 			resId = getStringRes(activity, "smssdk_receive_msg");
 			if (resId > 0) {
 				String unReceive = getContext().getString(resId, time);
@@ -112,11 +117,11 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 			}
 			tvUnreceiveIdentify.setOnClickListener(this);
 			tvUnreceiveIdentify.setEnabled(false);
-			resId = getIdRes(activity, "iv_clear");
-			ivClear = (ImageView) activity.findViewById(resId);
+
+			ivClear = (ImageView) activity.findViewById(Res.id.iv_clear);
 			ivClear.setOnClickListener(this);
-			resId = getIdRes(activity, "btn_sounds");
-			btnSounds = (Button) findViewById(resId);
+
+			btnSounds = (Button) findViewById(Res.id.btn_sounds);
 			btnSounds.setOnClickListener(this);
 
 			handler = new EventHandler() {
@@ -137,19 +142,24 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 			countDown();
 		}
 
-		smsReceiver = new SMSReceiver(new SMSSDK.VerifyCodeReadListener() {
-			@Override
-			public void onReadVerifyCode(final String verifyCode) {
-				runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						etIdentifyNum.setText(verifyCode);
+		try {
+			if (DeviceHelper.getInstance(activity).checkPermission("android.permission.RECEIVE_SMS")) {
+				smsReceiver = new SMSReceiver(new SMSSDK.VerifyCodeReadListener() {
+					public void onReadVerifyCode(final String verifyCode) {
+						runOnUIThread(new Runnable() {
+							public void run() {
+								etIdentifyNum.setText(verifyCode);
+							}
+						});
 					}
 				});
+				activity.registerReceiver(smsReceiver, new IntentFilter(
+						"android.provider.Telephony.SMS_RECEIVED"));
 			}
-		});
-		activity.registerReceiver(smsReceiver, new IntentFilter(
-				"android.provider.Telephony.SMS_RECEIVED"));
+		} catch (Throwable t) {
+			t.printStackTrace();
+			smsReceiver = null;
+		}
 	}
 
 	@Override
@@ -164,7 +174,13 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 
 	public boolean onFinish() {
 		SMSSDK.unregisterEventHandler(handler);
-		activity.unregisterReceiver(smsReceiver);
+		if (smsReceiver != null) {
+			try {
+				activity.unregisterReceiver(smsReceiver);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
 		return super.onFinish();
 	}
 
@@ -229,12 +245,11 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 
 	public void onClick(View v) {
 		int id = v.getId();
-		int id_ll_back = getIdRes(activity, "ll_back");
-		int id_btn_submit = getIdRes(activity, "btn_submit");
-		int id_tv_unreceive_identify = getIdRes(activity,
-				"tv_unreceive_identify");
-		int id_iv_clear = getIdRes(activity, "iv_clear");
-		int id_btn_sounds = getIdRes(activity, "btn_sounds");
+		int id_ll_back = Res.id.ll_back;
+		int id_btn_submit = Res.id.btn_submit;
+		int id_tv_unreceive_identify = Res.id.tv_unreceive_identify;
+		int id_iv_clear = Res.id.iv_clear;
+		int id_btn_sounds = Res.id.btn_sounds;
 
 		if (id == id_ll_back) {
 			runOnUIThread(new Runnable() {
@@ -267,9 +282,13 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 		} else if (id == id_iv_clear) {
 			etIdentifyNum.getText().clear();
 		} else if (id == id_btn_sounds) {
-			SHOWDIALOGTYPE = 2;
-			// 发送语音验证码
-			showDialog(SHOWDIALOGTYPE);
+			long time = System.currentTimeMillis();
+			if (time - lastRequestVVTime > MIN_REQUEST_VOICE_VERIFY_INTERVAL) {
+				lastRequestVVTime = time;
+				SHOWDIALOGTYPE = 2;
+				// 发送语音验证码
+				showDialog(SHOWDIALOGTYPE);
+			}
 		}
 	}
 
@@ -330,42 +349,39 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 			int resId = getStyleRes(activity, "CommonDialog");
 			if (resId > 0) {
 				final Dialog dialog = new Dialog(getContext(), resId);
-				resId = getLayoutRes(activity, "smssdk_send_msg_dialog");
-				if (resId > 0) {
-					dialog.setContentView(resId);
-					resId = getIdRes(activity, "tv_dialog_title");
-					TextView tv_title = (TextView) dialog.findViewById(resId);
+				LinearLayout layout = SendMsgDialogLayout.create(activity);
+
+				if (layout != null) {
+					dialog.setContentView(layout);
+
+					TextView tv_title = (TextView) dialog.findViewById(Res.id.tv_dialog_title);
 					resId = getStringRes(activity,
 							"smssdk_make_sure_send_sounds");
 					if (resId > 0) {
 						tv_title.setText(resId);
 					}
-					resId = getIdRes(activity, "tv_dialog_hint");
-					TextView tv = (TextView) dialog.findViewById(resId);
+
+					TextView tv = (TextView) dialog.findViewById(Res.id.tv_dialog_hint);
 					resId = getStringRes(activity,
 							"smssdk_send_sounds_identify_code");
 					if (resId > 0) {
 						String text = getContext().getString(resId);
 						tv.setText(text);
 					}
-					resId = getIdRes(activity, "btn_dialog_ok");
-					if (resId > 0) {
-						((Button) dialog.findViewById(resId)).setOnClickListener(new OnClickListener() {
+
+					((Button) dialog.findViewById(Res.id.btn_dialog_ok)).setOnClickListener(new OnClickListener() {
 									public void onClick(View v) {
 										// TODO 发送语言
 										dialog.dismiss();
 										SMSSDK.getVoiceVerifyCode(phone, code);
 									}
-								});
-					}
-					resId = getIdRes(activity, "btn_dialog_cancel");
-					if (resId > 0) {
-						((Button) dialog.findViewById(resId)).setOnClickListener(new OnClickListener() {
+					});
+
+					((Button) dialog.findViewById(Res.id.btn_dialog_cancel)).setOnClickListener(new OnClickListener() {
 									public void onClick(View v) {
 										dialog.dismiss();
 									}
-								});
-					}
+					});
 					dialog.setCanceledOnTouchOutside(true);
 					dialog.show();
 				}
@@ -397,8 +413,20 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 				} else {
 					((Throwable) data).printStackTrace();
 					// 验证码不正确
-					int resId = getStringRes(activity,
-							"smssdk_virificaition_code_wrong");
+					String message = ((Throwable) data).getMessage();
+					int resId = 0;
+					try {
+						JSONObject json = new JSONObject(message);
+						int status = json.getInt("status");
+						resId = getStringRes(activity,
+								"smssdk_error_detail_" + status);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if(resId == 0) {
+						resId = getStringRes(activity,"smssdk_virificaition_code_wrong");
+					}
 					if (resId > 0) {
 						Toast.makeText(activity, resId, Toast.LENGTH_SHORT).show();
 					}
@@ -508,17 +536,20 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 		int resId = getStyleRes(activity, "CommonDialog");
 		if (resId > 0) {
 			final Dialog dialog = new Dialog(getContext(), resId);
-			resId = getLayoutRes(activity, "smssdk_back_verify_dialog");
-			if (resId > 0) {
-				dialog.setContentView(resId);
-				resId = getIdRes(activity, "tv_dialog_hint");
+
+			LinearLayout layout = BackVerifyDialogLayout.create(activity);
+
+			if (layout != null) {
+				dialog.setContentView(layout);
+
+				resId = Res.id.tv_dialog_hint;
 				TextView tv = (TextView) dialog.findViewById(resId);
 				resId = getStringRes(activity,
 						"smssdk_close_identify_page_dialog");
 				if (resId > 0) {
 					tv.setText(resId);
 				}
-				resId = getIdRes(activity, "btn_dialog_ok");
+				resId = Res.id.btn_dialog_ok;
 				Button waitBtn = (Button) dialog.findViewById(resId);
 				resId = getStringRes(activity, "smssdk_wait");
 				if (resId > 0) {
@@ -529,7 +560,7 @@ public class IdentifyNumPage extends FakeActivity implements OnClickListener,
 						dialog.dismiss();
 					}
 				});
-				resId = getIdRes(activity, "btn_dialog_cancel");
+				resId = Res.id.btn_dialog_cancel;
 				Button backBtn = (Button) dialog.findViewById(resId);
 				resId = getStringRes(activity, "smssdk_back");
 				if (resId > 0) {
