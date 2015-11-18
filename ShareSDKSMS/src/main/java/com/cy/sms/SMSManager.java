@@ -50,29 +50,35 @@ public class SMSManager {
 			 
 	         @Override
 	         public void afterEvent(int event, int result, Object data) {
+//				 Log.w("event:"+event+" result:"+result+" ");
+				 if (result == SMSSDK.RESULT_COMPLETE) {
+					 //回调完成
+					 if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+						 //提交验证码成功
+//						 Log.w("提交验证码成功 result:" + result + " data:" + data.toString());
+						 SMSSDK.unregisterAllEventHandler();
+						 if (result==SMSSDK.RESULT_COMPLETE) {
+							 listener.onComplete();
+						 }else {
+							 //验证码错误
+							 listener.onError();
+						 }
 
-	            if (result == SMSSDK.RESULT_COMPLETE) {
-	             //回调完成
-	             if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-	             //提交验证码成功
-//	            	 Log.w("提交验证码成功 result:" + result + " data:" + data.toString());
-	    	         SMSSDK.unregisterAllEventHandler();
-	    	         if (result== SMSSDK.RESULT_COMPLETE) {
-		    	         listener.onComplete();						
-					}else {
-						//验证码错误
-						listener.onError();
-					}
-
-	             }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
-	             //获取验证码成功
-			         SMSSDK.unregisterAllEventHandler();
-	             }else if (event == SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
-	             //返回支持发送验证码的国家列表
-	             } 
-	           }else{                                                                 
-	              ((Throwable)data).printStackTrace();
-	           }
+					 }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
+						 //获取验证码成功
+						 SMSSDK.unregisterAllEventHandler();
+					 }else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
+						 //返回支持发送验证码的国家列表
+					 }
+				 }else if (result==SMSSDK.RESULT_ERROR){
+					 if (event==SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE){
+						 //验证码错误
+						 listener.onError();
+					 }
+				 }else{
+					 ((Throwable)data).printStackTrace();
+				 }
+				 SMSSDK.unregisterAllEventHandler();
 	         } 
 	      }; 
 		SMSSDK.registerEventHandler(eh); //注册短信回调
