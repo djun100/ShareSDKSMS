@@ -1,6 +1,7 @@
 # ShareSDKSMS
 base on ShareSMSSDK v1.3.1
 已经配置好permission，加好jar包
+收不到短信请确保后台关闭了智能验证。
 usage
 
 1、
