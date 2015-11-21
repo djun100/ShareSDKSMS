@@ -9,9 +9,10 @@ import cn.smssdk.OnSendMessageHandler;
 import cn.smssdk.SMSSDK;
 
 public class SMSManager {
-
-	public static void init(Context context) {
-		SMSSDK.initSDK(context, "<您的appkey>", "<您的appsecret>");
+	static boolean mHasInited=false;
+	public static void init(Context context,String appkey,String appSecret) {
+		SMSSDK.initSDK(context, appkey, appSecret);
+		mHasInited=true;
 	}
 /*	 EventHandler eh=new EventHandler(){
 		 
@@ -34,6 +35,7 @@ public class SMSManager {
          } 
       }; */
 	public static void getVerificationCode(String phone,final Listener listener){
+		if (mHasInited==false) throw new RuntimeException("请先初始化SMSManager.init(...)");
 		SMSSDK.getVerificationCode("86", phone.trim(), new OnSendMessageHandler() {
 
 			@Override
@@ -44,6 +46,33 @@ public class SMSManager {
 				return false;
 			}
 		});
+	}
+	public static void getVoiceVerifyCode(String phone,final Listener listener){
+		if (mHasInited==false) throw new RuntimeException("请先初始化SMSManager.init(...)");
+		EventHandler eh=new EventHandler(){
+
+			@Override
+			public void afterEvent(int event, int result, Object data) {
+//				Log.w("event:"+event+" result:"+result+" ");
+				if (result == SMSSDK.RESULT_COMPLETE) {
+					//回调完成
+					if (event == SMSSDK.EVENT_GET_VOICE_VERIFICATION_CODE){
+						listener.onComplete();
+						//获取验证码成功
+					}
+				}else if (result==SMSSDK.RESULT_ERROR){
+					if (event==SMSSDK.EVENT_GET_VOICE_VERIFICATION_CODE){
+						//验证码发送失败
+						listener.onError();
+					}
+				}else{
+					((Throwable)data).printStackTrace();
+				}
+				SMSSDK.unregisterAllEventHandler();
+			}
+		};
+		SMSSDK.registerEventHandler(eh); //注册回调
+		SMSSDK.getVoiceVerifyCode(phone, "86");
 	}
 	public static void submitVerificationCode(String phone,String verificationCode,final Listener listener){
 		EventHandler eh=new EventHandler(){

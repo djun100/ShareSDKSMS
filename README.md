@@ -12,13 +12,11 @@ usage
     }
 
     compile 'com.github.djun100:ShareSDKSMS:3caf6dd5acdc5274ba6fc1222db02a75ed2f771f'
-2、在SMSManager类中先初始化
+2、在您的项目启动时，用SMSManager类进行初始化（必须）
 
-    SMSSDK.initSDK(this, "<您的appkey>", "<您的appsecret>");`
-3、在您的项目启动时，调用下面的代码：
+    SMSManager.init(this, "<您的appkey>", "<您的appsecret>");`
 
-    SMSManager.init(getApplicationContext());
-4、请求验证码
+3、请求验证码
 
     SMSManager.getVerificationCode(mEtPhone.getText().toString(), new Listener() {
                     @Override
