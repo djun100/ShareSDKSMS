@@ -1,5 +1,5 @@
 # ShareSDKSMS
-base on ShareSMSSDK v1.3.1
+base on ShareSMSSDK v2.1.1
 已经配置好permission，加好jar包
 收不到短信请确保后台关闭了智能验证。
 usage
@@ -11,7 +11,7 @@ usage
         maven { url "https://jitpack.io" }
     }
 
-    compile 'com.github.djun100:ShareSDKSMS:16a1de1d0f9cfbe04e240bb2132abae9e98c41b1'
+    compile 'com.github.djun100:ShareSDKSMS:2f1433cc18d7828b06fc31bacf046ef63652461e'
 2、在您的项目启动时，用SMSManager类进行初始化（必须）
 
     SMSManager.init(this, "<您的appkey>", "<您的appsecret>");`
@@ -45,4 +45,9 @@ usage
                 });
 
 文档
+
 [http://wiki.mob.com/android-%E7%9F%AD%E4%BF%A1sdk%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3/](http://wiki.mob.com/android-%E7%9F%AD%E4%BF%A1sdk%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3/)
+
+无gui接口
+
+[http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/](http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/ "http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/")
