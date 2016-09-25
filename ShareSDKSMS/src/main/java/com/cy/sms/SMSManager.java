@@ -72,7 +72,7 @@ public class SMSManager {
 			}
 		};
 		SMSSDK.registerEventHandler(eh); //注册回调
-		SMSSDK.getVoiceVerifyCode(phone, "86");
+		SMSSDK.getVoiceVerifyCode("86", phone);
 	}
 	public static void submitVerificationCode(String phone,String verificationCode,final Listener listener){
 		EventHandler eh=new EventHandler(){

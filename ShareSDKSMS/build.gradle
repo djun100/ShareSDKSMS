@@ -21,7 +21,13 @@ android {
         }
     }
 }
+repositories {
+    flatDir {
+        dirs 'libs' //this way we can find the .aar file in libs folder}
+    }
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile(name: 'SMSSDK-2.1.1', ext: 'aar')
 }
