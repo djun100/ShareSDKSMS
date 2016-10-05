@@ -11,7 +11,7 @@ usage
         maven { url "https://jitpack.io" }
     }
 
-    compile 'com.github.djun100:ShareSDKSMS:4da03f75ff2b3ae65f30c2fea9d8c788e4ea486f'
+    compile 'com.github.djun100:ShareSDKSMS:3692a1586fc6233404fe95f37643c1c3b2a23041'
 2、在您的项目启动时，用SMSManager类进行初始化（必须）
 
     SMSManager.init(this, "<您的appkey>", "<您的appsecret>");`
