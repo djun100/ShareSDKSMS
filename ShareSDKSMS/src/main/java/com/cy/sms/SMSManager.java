@@ -3,6 +3,7 @@ package com.cy.sms;
 import android.content.Context;
 
 import com.cy.util.Listener;
+import com.mob.MobSDK;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.OnSendMessageHandler;
@@ -11,7 +12,7 @@ import cn.smssdk.SMSSDK;
 public class SMSManager {
 	static boolean mHasInited=false;
 	public static void init(Context context,String appkey,String appSecret) {
-		SMSSDK.initSDK(context, appkey, appSecret);
+		MobSDK.init(context, appkey, appSecret);
 		mHasInited=true;
 	}
 /*	 EventHandler eh=new EventHandler(){

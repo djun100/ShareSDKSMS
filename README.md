@@ -1,5 +1,5 @@
 # ShareSDKSMS
-base on ShareSMSSDK v2.1.1
+base on ShareSMSSDK v3.0.0
 已经配置好permission，加好jar包
 收不到短信请确保后台关闭了智能验证。
 usage
@@ -46,8 +46,8 @@ usage
 
 文档
 
-[http://wiki.mob.com/android-%E7%9F%AD%E4%BF%A1sdk%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3/](http://wiki.mob.com/android-%E7%9F%AD%E4%BF%A1sdk%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3/)
+http://wiki.mob.com/sdk-sms-android-3-0-0/
 
 无gui接口
 
-[http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/](http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/ "http://wiki.mob.com/sms-android-%e6%97%a0gui%e6%8e%a5%e5%8f%a3%e8%b0%83%e7%94%a8/")
+http://wiki.mob.com/sms-android-%E6%97%A0gui%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8/
